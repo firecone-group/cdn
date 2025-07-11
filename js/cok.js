@@ -16,11 +16,6 @@
     };
     let banner;
     const check = () => {
-        const hasConsent = getCookie(consentCookieName);
-        if (hasConsent === 'true' || hasConsent === 'declined') return;
-
-        consentChannel.postMessage('pending');
-
         const style = document.createElement('style');
         style.textContent = `
       #cookie-banner-wrapper {
@@ -208,4 +203,9 @@
             check();
         }
     };
+    const hasConsent = getCookie(consentCookieName);
+    if (hasConsent === 'true' || hasConsent === 'declined') return;
+
+    consentChannel.postMessage('pending');
+    check();
 })();
