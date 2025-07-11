@@ -3,7 +3,7 @@
 
     function setCookie(name, value, days) {
         const expires = new Date(Date.now() + days * 864e5).toUTCString();
-        const domain = window.location.hostname
+        const domain = '.' + window.location.hostname
             .split('.')
             .slice(-2)
             .join('.'); // firecone.eu z blog.firecone.eu
