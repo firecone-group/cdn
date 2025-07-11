@@ -15,19 +15,18 @@
 
     if (getCookie(consentCookieName) === 'true' || getCookie(consentCookieName) === 'declined') return;
 
-    // vytvořit wrapper podle body šířky
+    // wrapper (to keep it aligned)
     const wrapper = document.createElement('div');
     wrapper.style.position = 'fixed';
     wrapper.style.zIndex = '99999';
-    wrapper.style.left = '0';
-    wrapper.style.right = '0';
     wrapper.style.display = 'flex';
-    wrapper.style.justifyContent = 'center';
-    wrapper.style.pointerEvents = 'none'; // aby nepřekážel mimo banner
+    wrapper.style.justifyContent = 'flex-end';
+    wrapper.style.pointerEvents = 'none';
+    wrapper.style.width = '100%';
+    wrapper.style.padding = '0 16px';
 
     // banner
     const banner = document.createElement('div');
-    banner.id = 'cookie-consent-banner';
     Object.assign(banner.style, {
         backgroundColor: '#222',
         color: '#eee',
@@ -39,39 +38,38 @@
         maxWidth: '320px',
         borderRadius: '8px',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: '10px',
         opacity: '0',
         transform: 'translateY(20px)',
         transition: 'opacity 0.4s ease, transform 0.4s ease',
-        pointerEvents: 'auto', // aktivní kliky
+        pointerEvents: 'auto',
+        width: '100%',
+        boxSizing: 'border-box',
     });
 
     function setPosition() {
         if (window.innerWidth < 768) {
             wrapper.style.bottom = '0';
-            wrapper.style.top = 'auto';
+            wrapper.style.right = '0';
             banner.style.borderRadius = '0';
             banner.style.width = '100%';
+            banner.style.margin = '0';
         } else {
             wrapper.style.bottom = '20px';
-            wrapper.style.top = 'auto';
-            banner.style.borderRadius = '8px';
+            wrapper.style.right = '20px';
             banner.style.width = '320px';
+            banner.style.borderRadius = '8px';
         }
     }
 
     setPosition();
     window.addEventListener('resize', setPosition);
 
-    // text
     const text = document.createElement('span');
     text.innerHTML = `This site uses cookies to improve your experience. By continuing, you accept our <a href="/privacy" style="color:#4CAF50; text-decoration:underline;" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.`;
-    text.style.flex = '1 1 auto';
-    text.style.marginRight = '10px';
 
-    // accept btn
     const btnAccept = document.createElement('button');
     btnAccept.textContent = 'Accept';
     Object.assign(btnAccept.style, {
@@ -82,11 +80,9 @@
         fontSize: '14px',
         cursor: 'pointer',
         borderRadius: '4px',
-        flex: '0 0 auto',
         marginRight: '8px',
     });
 
-    // decline btn
     const btnDecline = document.createElement('button');
     btnDecline.textContent = 'Decline';
     Object.assign(btnDecline.style, {
@@ -97,8 +93,13 @@
         fontSize: '14px',
         cursor: 'pointer',
         borderRadius: '4px',
-        flex: '0 0 auto',
     });
+
+    const btnRow = document.createElement('div');
+    btnRow.style.display = 'flex';
+    btnRow.style.flexWrap = 'wrap';
+    btnRow.appendChild(btnAccept);
+    btnRow.appendChild(btnDecline);
 
     btnAccept.onclick = function () {
         setCookie(consentCookieName, 'true', 365);
@@ -111,22 +112,15 @@
     };
 
     banner.appendChild(text);
-    const btnContainer = document.createElement('div');
-    btnContainer.style.display = 'flex';
-    btnContainer.appendChild(btnAccept);
-    btnContainer.appendChild(btnDecline);
-    banner.appendChild(btnContainer);
-
+    banner.appendChild(btnRow);
     wrapper.appendChild(banner);
     document.body.appendChild(wrapper);
 
-    // fade in
     requestAnimationFrame(() => {
         banner.style.opacity = '1';
         banner.style.transform = 'translateY(0)';
     });
 
-    // fade out helper
     function fadeOutAndRemove(el) {
         el.firstChild.style.opacity = '0';
         el.firstChild.style.transform = 'translateY(20px)';
