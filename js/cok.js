@@ -16,14 +16,11 @@
     };
     let banner;
     const check = () => {
-        // if consent is already known, bail
         const hasConsent = getCookie(consentCookieName);
         if (hasConsent === 'true' || hasConsent === 'declined') return;
 
-        // say hi to other tabs
         consentChannel.postMessage('pending');
 
-        // CSS
         const style = document.createElement('style');
         style.textContent = `
       #cookie-banner-wrapper {
@@ -55,6 +52,10 @@
         box-sizing: border-box;
         max-width: 320px;
         margin: 20px;
+      }
+
+      #cookie-consent-banner.closing {
+        animation: cookieFadeOut 0.4s ease forwards;
       }
 
       #cookie-consent-banner span {
@@ -103,6 +104,13 @@
         }
       }
 
+      @keyframes cookieFadeOut {
+        to {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+      }
+
       @media (max-width: 767px) {
         #cookie-banner-wrapper {
           bottom: 0;
@@ -133,7 +141,6 @@
     `;
         document.head.appendChild(style);
 
-        // DOM
         const wrapper = document.createElement('div');
         wrapper.id = 'cookie-banner-wrapper';
 
@@ -161,7 +168,6 @@
         wrapper.appendChild(banner);
         document.body.appendChild(wrapper);
 
-        // toast
         const toast = document.createElement('div');
         toast.id = 'cookie-toast';
         document.body.appendChild(toast);
@@ -174,16 +180,20 @@
             }, 2000);
         }
 
-        // send consent
+        function closeBanner() {
+            banner.classList.add('closing');
+            setTimeout(() => banner.remove(), 400);
+        }
+
         btnAccept.onclick = function () {
             setCookie(consentCookieName, 'true', 6 * 30);
-            banner.remove();
+            closeBanner();
             consentChannel.postMessage('accepted');
         };
 
         btnDecline.onclick = function () {
             setCookie(consentCookieName, 'declined', 6 * 30);
-            banner.remove();
+            closeBanner();
             consentChannel.postMessage('declined');
         };
     };
