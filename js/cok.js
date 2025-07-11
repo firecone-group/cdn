@@ -8,7 +8,7 @@
             .slice(-2)
             .join('.'); // firecone.eu z blog.firecone.eu
 
-        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; domain=.${domain}`;
+        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; domain=${domain}`;
     }
 
 
