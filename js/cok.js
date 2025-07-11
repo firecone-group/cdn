@@ -13,11 +13,15 @@
             const parts = v.split('=');
             return parts[0] === name ? decodeURIComponent(parts[1]) : r;
         }, '');
-    };
-    let banner;
-    const check = () => {
-        const style = document.createElement('style');
-        style.textContent = `
+    }
+
+    // show banner if no consent
+    const hasConsent = getCookie(consentCookieName);
+    if (hasConsent === 'true' || hasConsent === 'declined') return;
+
+    // CSS
+    const style = document.createElement('style');
+    style.textContent = `
       #cookie-banner-wrapper {
         position: fixed;
         z-index: 99999;
@@ -49,10 +53,6 @@
         margin: 20px;
       }
 
-      #cookie-consent-banner.closing {
-        animation: cookieFadeOut 0.4s ease forwards;
-      }
-
       #cookie-consent-banner span {
         margin-right: 10px;
       }
@@ -79,7 +79,7 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
-        background: #333;
+        background: #4CAF50;
         color: white;
         font-family: Arial, sans-serif;
         font-size: 14px;
@@ -96,13 +96,6 @@
         to {
           opacity: 1;
           transform: translateY(0);
-        }
-      }
-
-      @keyframes cookieFadeOut {
-        to {
-          opacity: 0;
-          transform: translateY(20px);
         }
       }
 
@@ -134,64 +127,63 @@
         }
       }
     `;
-        document.head.appendChild(style);
+    document.head.appendChild(style);
 
-        const wrapper = document.createElement('div');
-        wrapper.id = 'cookie-banner-wrapper';
+    // create banner
+    const wrapper = document.createElement('div');
+    wrapper.id = 'cookie-banner-wrapper';
 
-        banner = document.createElement('div');
-        banner.id = 'cookie-consent-banner';
+    const banner = document.createElement('div');
+    banner.id = 'cookie-consent-banner';
 
-        const text = document.createElement('span');
-        text.innerHTML = `This site uses cookies to improve your experience. By continuing, you accept our <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.`;
+    const text = document.createElement('span');
+    text.innerHTML = `This site uses cookies to improve your experience. By continuing, you accept our <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.`;
 
-        const btnAccept = document.createElement('button');
-        btnAccept.id = 'cookie-accept';
-        btnAccept.textContent = 'Accept';
+    const btnAccept = document.createElement('button');
+    btnAccept.id = 'cookie-accept';
+    btnAccept.textContent = 'Accept';
 
-        const btnDecline = document.createElement('button');
-        btnDecline.id = 'cookie-decline';
-        btnDecline.textContent = 'Decline';
+    const btnDecline = document.createElement('button');
+    btnDecline.id = 'cookie-decline';
+    btnDecline.textContent = 'Decline';
 
-        const btnRow = document.createElement('div');
-        btnRow.id = 'cookie-btn-row';
-        btnRow.appendChild(btnAccept);
-        btnRow.appendChild(btnDecline);
+    const btnRow = document.createElement('div');
+    btnRow.id = 'cookie-btn-row';
+    btnRow.appendChild(btnAccept);
+    btnRow.appendChild(btnDecline);
 
-        banner.appendChild(text);
-        banner.appendChild(btnRow);
-        wrapper.appendChild(banner);
-        document.body.appendChild(wrapper);
+    banner.appendChild(text);
+    banner.appendChild(btnRow);
+    wrapper.appendChild(banner);
+    document.body.appendChild(wrapper);
 
-        const toast = document.createElement('div');
-        toast.id = 'cookie-toast';
-        document.body.appendChild(toast);
+    // toast message
+    const toast = document.createElement('div');
+    toast.id = 'cookie-toast';
+    document.body.appendChild(toast);
 
-        function showToast(msg) {
-            toast.textContent = msg;
-            toast.style.opacity = '1';
-            setTimeout(() => {
-                toast.style.opacity = '0';
-            }, 2000);
-        }
+    function showToast(msg) {
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        setTimeout(() => {
+            toast.style.opacity = '0';
+        }, 2000);
+    }
 
-        function closeBanner() {
-            banner.classList.add('closing');
-            setTimeout(() => banner.remove(), 400);
-        }
-
-        btnAccept.onclick = function () {
-            setCookie(consentCookieName, 'true', 6 * 30);
-            closeBanner();
-            consentChannel.postMessage('accepted');
-        };
-
-        btnDecline.onclick = function () {
-            setCookie(consentCookieName, 'declined', 6 * 30);
-            closeBanner();
-            consentChannel.postMessage('declined');
-        };
+    // button actions
+    btnAccept.onclick = function () {
+        setCookie(consentCookieName, 'true', 6 * 30);
+        banner.remove();
+        consentChannel.postMessage('accepted');
     };
+
+    btnDecline.onclick = function () {
+        setCookie(consentCookieName, 'declined', 6 * 30);
+        banner.remove();
+        consentChannel.postMessage('declined');
+    };
+
+    // listen for consent from other tabs
     consentChannel.onmessage = function (e) {
         if (e.data === 'accepted') {
             setCookie(consentCookieName, 'true', 6 * 30);
@@ -199,13 +191,6 @@
         } else if (e.data === 'declined') {
             setCookie(consentCookieName, 'declined', 6 * 30);
             if (banner && banner.parentNode) banner.remove();
-        } else if (e.data === 'pending') {
-            check();
         }
     };
-    const hasConsent = getCookie(consentCookieName);
-    if (hasConsent === 'true' || hasConsent === 'declined') return;
-
-    consentChannel.postMessage('pending');
-    check();
 })();
