@@ -188,10 +188,16 @@
     consentChannel.onmessage = function (e) {
         if (e.data === 'accepted') {
             setCookie(consentCookieName, 'true', 6 * 30);
-            if (banner && banner.parentNode) banner.remove();
+            if (banner && banner.parentNode) {
+                banner.classList.add('closing');
+                setTimeout(() => banner.remove(), 1000);
+            }
         } else if (e.data === 'declined') {
             setCookie(consentCookieName, 'declined', 6 * 30);
-            if (banner && banner.parentNode) banner.remove();
+            if (banner && banner.parentNode) {
+                banner.classList.add('closing');
+                setTimeout(() => banner.remove(), 1000);
+            }
         } else if (e.data === 'pending') {
             check();
         }
