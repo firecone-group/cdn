@@ -168,17 +168,9 @@
         toast.id = 'cookie-toast';
         document.body.appendChild(toast);
 
-        function showToast(msg) {
-            toast.textContent = msg;
-            toast.style.opacity = '1';
-            setTimeout(() => {
-                toast.style.opacity = '0';
-            }, 2000);
-        }
-
         function closeBanner() {
             banner.classList.add('closing');
-            setTimeout(() => banner.remove(), 400);
+            setTimeout(() => banner.remove(), 1000);
         }
 
         btnAccept.onclick = function () {
