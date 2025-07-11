@@ -144,7 +144,7 @@
         banner.id = 'cookie-consent-banner';
 
         const text = document.createElement('span');
-        text.innerHTML = `This site uses cookies to improve your experience. By continuing, you accept our <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.`;
+        text.innerHTML = `This site uses cookies to improve your experience. By continuing, you accept our <a href="https://${window.location.hostname.split('.').slice(-2).join('.')}/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.`;
 
         const btnAccept = document.createElement('button');
         btnAccept.id = 'cookie-accept';
